@@ -7,6 +7,8 @@
 
 #define ENABLE_DEBUG
 
+const int ard_led_pin[4] = {   8,   9,  10,  11, };
+
 #ifdef ENABLE_KEYBOARD
 #include <Keyboard.h>
 
@@ -57,6 +59,11 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
+  for (int i = 0; i < 4; ++i) {
+    digitalWrite(ard_led_pin[i], HIGH);
+    pinMode(ard_led_pin[i], OUTPUT);
+  }
+
 #ifdef ENABLE_KEYBOARD
   Keyboard.begin();
 #endif /* ENABLE_KEYBOARD */
@@ -68,6 +75,11 @@ void setup() {
 #ifdef ENABLE_DEBUG
   Serial.begin(9600);
 #endif /* ENABLE_DEBUG */
+
+  delay(800);
+
+  for (int i = 0; i < 4; ++i)
+    digitalWrite(ard_led_pin[i], LOW);
 
   t0 = micros();
 }
@@ -139,6 +151,11 @@ void loop() {
   tblock += dt;
 
   if (tblock > 32000 || (tblock > 8000 && ns_state)) {
+    for (int i = 0; i < 4; ++i) {
+      int state = (ns_state & ns_sns_map[i]) ? HIGH : LOW;
+      digitalWrite(ard_led_pin[i], state);
+    }
+
     Joystick.report(ns_state);
 
     ns_state = 0;
