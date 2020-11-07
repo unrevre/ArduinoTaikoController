@@ -16,7 +16,7 @@ const char kb_key_map[4] = { 'd', 'f', 'j', 'k', };
 #endif /* ENABLE_KEYBOARD */
 
 #ifdef ENABLE_NSSWITCH
-#include "Joystick.h"
+#include <Joystick.h>
 
 const int ns_sns_map[4] = {
   SWITCH_BTN_ZL,
