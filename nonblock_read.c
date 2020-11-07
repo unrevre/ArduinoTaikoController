@@ -37,7 +37,7 @@ void analogPrepareRead(uint8_t pin)
 #endif
 #endif
 
-#if defined(ADCSRA) && defined(ADCL)
+#if defined(ADCSRA) && defined(ADC)
 	// start the conversion
 	sbi(ADCSRA, ADSC);
 #endif
@@ -45,21 +45,13 @@ void analogPrepareRead(uint8_t pin)
 
 int analogReadData(void)
 {
-#if defined(ADCSRA) && defined(ADCL)
+#if defined(ADCSRA) && defined(ADC)
 	// ADSC is cleared when the conversion finishes
 	while (bit_is_set(ADCSRA, ADSC));
 
-	// we have to read ADCL first; doing so locks both ADCL
-	// and ADCH until ADCH is read.  reading ADCL second would
-	// cause the results of each conversion to be discarded,
-	// as ADCL and ADCH would be locked when it completed.
-	uint8_t low, high;
-
-	low  = ADCL;
-	high = ADCH;
-
-	// combine the two bytes
-	return (high << 8) | low;
+	// ADC macro takes care of reading ADC register.
+	// avr-gcc implements the proper reading order: ADCL is read first.
+	return ADC;
 #else
 	// we dont have an ADC, return 0
 	return 0;
