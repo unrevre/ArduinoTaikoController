@@ -2,23 +2,25 @@
 
 #include <Arduino.h>
 
+#define REGIONS 4
+
 #define ENABLE_KEYBOARD
 /* #define ENABLE_NSSWITCH */
 
 #define ENABLE_DEBUG
 
-const int ard_led_pin[4] = {   8,   9,  10,  11, };
+const int ard_led_pin[REGIONS] = {   8,   9,  10,  11, };
 
 #ifdef ENABLE_KEYBOARD
 #include <Keyboard.h>
 
-const char kb_key_map[4] = { 'd', 'f', 'j', 'k', };
+const char kb_key_map[REGIONS] = { 'd', 'f', 'j', 'k', };
 #endif /* ENABLE_KEYBOARD */
 
 #ifdef ENABLE_NSSWITCH
 #include <Joystick.h>
 
-const int ns_sns_map[4] = {
+const int ns_sns_map[REGIONS] = {
   SWITCH_BTN_ZL,
   SWITCH_BTN_LCLICK,
   SWITCH_BTN_RCLICK,
@@ -31,13 +33,14 @@ const long  k_relax = 10000;
 const float k_decay = 0.97f;
 const float k_mult  = 1.5f;
 
-const int   mkd_pin[4] = {  A0,  A1,  A2,  A3, };
-const int   mkd_nxt[4] = {   3,   2,   0,   1, };
-const float mkd_amp[4] = { 1.f, 1.f, 1.f, 1.f, };
 
-bool  mkd_dwn[4] = {   0,   0,   0,   0, };
-int   mkd_raw[4] = {   0,   0,   0,   0, };
-float mkd_sig[4] = { 0.f, 0.f, 0.f, 0.f, };
+const int   mkd_pin[REGIONS] = {  A0,  A1,  A2,  A3, };
+const int   mkd_nxt[REGIONS] = {   3,   2,   0,   1, };
+const float mkd_amp[REGIONS] = { 1.f, 1.f, 1.f, 1.f, };
+
+bool  mkd_dwn[REGIONS] = {   0,   0,   0,   0, };
+int   mkd_raw[REGIONS] = {   0,   0,   0,   0, };
+float mkd_sig[REGIONS] = { 0.f, 0.f, 0.f, 0.f, };
 
 long  mkd_busy = 0;
 float mkd_enve = 20.f;
@@ -59,7 +62,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
 
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < REGIONS; ++i) {
     digitalWrite(ard_led_pin[i], HIGH);
     pinMode(ard_led_pin[i], OUTPUT);
   }
@@ -78,7 +81,7 @@ void setup() {
 
   delay(800);
 
-  for (int i = 0; i < 4; ++i)
+  for (int i = 0; i < REGIONS; ++i)
     digitalWrite(ard_led_pin[i], LOW);
 
   t0 = micros();
@@ -106,7 +109,7 @@ void loop() {
 
   analogPrepareRead(mkd_pin[mkd_nxt[idx]]);
 
-  for (int i = 0; i != 4; ++i) {
+  for (int i = 0; i != REGIONS; ++i) {
     if (mkd_busy || !mkd_dwn[i])
       continue;
 
@@ -120,7 +123,7 @@ void loop() {
   int max_idx = -1;
   float max_sig = mkd_enve;
 
-  for (int i = 0; i != 4; ++i) {
+  for (int i = 0; i != REGIONS; ++i) {
     if (mkd_sig[i] < max_sig)
       continue;
 
@@ -151,7 +154,7 @@ void loop() {
   tblock += dt;
 
   if (tblock > 32000 || (tblock > 8000 && ns_state)) {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < REGIONS; ++i) {
       int state = (ns_state & ns_sns_map[i]) ? HIGH : LOW;
       digitalWrite(ard_led_pin[i], state);
     }
@@ -173,14 +176,14 @@ void loop() {
     output = true;
 
   if (output) {
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < REGIONS; ++i) {
       Serial.print(mkd_sig[i], 1);
       Serial.print('\t');
     }
 
     Serial.print("| ");
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < REGIONS; ++i) {
       Serial.print(mkd_busy ? (mkd_dwn[i] ? '#' : '*') : ' ');
       Serial.print(' ');
     }
