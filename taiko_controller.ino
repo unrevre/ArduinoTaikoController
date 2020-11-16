@@ -32,7 +32,11 @@ const int   k_thres = 15;
 const long  k_relax = 10000;
 const float k_decay = 0.97f;
 const float k_mult  = 1.5f;
+const int   k_echo  = 2;
+const int   k_mute  = 0;
 
+#define SIG_ECHO (k_echo)
+#define SIG_MUTE (k_echo + k_mute + 1)
 
 const int   mkd_pin[REGIONS] = {  A0,  A1,  A2,  A3, };
 const int   mkd_nxt[REGIONS] = {   3,   2,   0,   1, };
@@ -105,7 +109,7 @@ void loop() {
   float sig_data = abs(raw_data - raw_prev) * mkd_amp[idx];
 
   mkd_raw[idx] = raw_data;
-  mkd_sig[idx] = (sig_data + sig_prev * 2) / 3;
+  mkd_sig[idx] = (sig_data + sig_prev * SIG_ECHO) / SIG_MUTE;
 
   analogPrepareRead(mkd_pin[mkd_nxt[idx]]);
 
